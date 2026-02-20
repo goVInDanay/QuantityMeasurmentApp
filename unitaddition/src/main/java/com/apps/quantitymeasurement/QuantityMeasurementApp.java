@@ -1,5 +1,7 @@
 package com.apps.quantitymeasurement;
 
+import com.apps.quantitymeasurement.Length.LengthUnit;
+
 public class QuantityMeasurementApp {
 	public static boolean demonstrateLengthEquality(Length length1, Length length2) {
 		if (length1 == null || length2 == null) {
@@ -40,6 +42,12 @@ public class QuantityMeasurementApp {
 		return converted;
 	}
 
+	public static Length demonstrateLengthAddition(Length length1, Length length2) {
+		Length sum = length1.add(length2);
+		System.out.println(length1 + " + " + length2 + " = " + sum);
+		return sum;
+	}
+
 	public static void main(String args[]) {
 		demonstrateLengthComparison(1.0, Length.LengthUnit.FEET, 12.0, Length.LengthUnit.INCHES);
 		demonstrateLengthComparison(1.0, Length.LengthUnit.YARDS, 36.0, Length.LengthUnit.INCHES);
@@ -49,5 +57,6 @@ public class QuantityMeasurementApp {
 		demonstrateLengthConversion(1.0, Length.LengthUnit.FEET, Length.LengthUnit.INCHES);
 		Length lengthInYards = new Length(2.0, Length.LengthUnit.YARDS);
 		demonstrateLengthConversion(lengthInYards, Length.LengthUnit.FEET);
+		demonstrateLengthAddition(lengthInYards, new Length(3.0, LengthUnit.FEET));
 	}
 }

@@ -1,6 +1,9 @@
 package com.apps.quantitymeasurement;
 
 import org.junit.jupiter.api.Test;
+
+import com.apps.quantitymeasurement.Length.LengthUnit;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class QuantityMeasurementAppTest {
@@ -175,5 +178,14 @@ class QuantityMeasurementAppTest {
 		Length length = new Length(1.0, Length.LengthUnit.FEET);
 		Length converted = new Length(12.0, Length.LengthUnit.INCHES);
 		assertTrue(length.convertTo(Length.LengthUnit.INCHES).equals(converted));
+	}
+
+	@Test
+	public void addFeetAndInches() {
+		Length length1 = new Length(1, Length.LengthUnit.FEET);
+		Length length2 = new Length(12, Length.LengthUnit.INCHES);
+		Length sumLength = QuantityMeasurementApp.demonstrateLengthAddition(length1, length2);
+		Length expectedLength = new Length(2, Length.LengthUnit.FEET);
+		assertTrue(QuantityMeasurementApp.demonstrateLengthEquality(length1, length2));
 	}
 }
