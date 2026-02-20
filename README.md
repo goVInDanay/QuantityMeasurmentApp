@@ -12,3 +12,10 @@
 		
 		- Added UC-4 in features/UC4-ExtendedUnitSupport
 		- Added yards and inches equality measurement functionality
+		
+## Day 3
+		- Added UC-5 in features/UC5-UnitToUnitConversion
+		- Added conversion between different units
+		
+		- Added UC-6 in features/UC6-AdditionOfTwoLengthUnits
+		- Added addition of two lengths of any types
