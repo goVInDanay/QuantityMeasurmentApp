@@ -21,6 +21,9 @@ public class Length {
 	}
 
 	public Length(double value, LengthUnit unit) {
+		if (!Double.isFinite(value)) {
+			throw new IllegalArgumentException("Value must be a finite number");
+		}
 		if (unit == null) {
 			throw new IllegalArgumentException("Unit cannot be null");
 		}
@@ -55,6 +58,10 @@ public class Length {
 	public Length convertTo(LengthUnit targetUnit) {
 		if (targetUnit == null) {
 			throw new IllegalArgumentException("Target unit cannot be null");
+		}
+
+		if (!Double.isFinite(this.value)) {
+			throw new IllegalArgumentException("Value must be a finite number");
 		}
 
 		double baseValue = convertToBaseUnit();
