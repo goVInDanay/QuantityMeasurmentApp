@@ -37,3 +37,6 @@
 ## Day 6
 		- Added UC-11 in feature/UC11-VolumeMeasurementEqualityConversionAndAddition
 		- Added volume actions functionality
+		
+		- Added UC-12 in feature/UC12-SubtractionAndDivisionOperationsOnQuantityMeasurements
+		- Added subtraction and division 
