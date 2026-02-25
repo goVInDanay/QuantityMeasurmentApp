@@ -26,3 +26,14 @@
 		
 		- Added UC-8 in feature/UC8-RefactoringUnitEnumToStandalone
 		- Added addition of two lengths of any types
+		
+## Day 5
+		- Added UC-9 in feature/UC9-WeightMeasurement 
+		- Added weight measurement functionality
+		
+		- Added UC-10 in feature/UC10-GenericQuantityClassWithUnitInterfaceForMultiCategorySupport
+		- Added generic quantity class for DRY principle
+	
+## Day 6
+		- Added UC-11 in feature/UC11-VolumeMeasurementEqualityConversionAndAddition
+		- Added volume actions functionality
