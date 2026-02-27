@@ -104,5 +104,29 @@ public class QuantityMeasurementApp {
 		demonstrateSubtraction(volume1, volume2, VolumeUnit.MILLILITRE);
 
 		demonstrateDivision(volume1, volume2);
+
+		demonstrateComparison(0.0, TemperatureUnit.CELSIUS, 32.0, TemperatureUnit.FAHRENHEIT);
+		demonstrateComparison(100.0, TemperatureUnit.CELSIUS, 212.0, TemperatureUnit.FAHRENHEIT);
+
+		Quantity<TemperatureUnit> temp1 = new Quantity<>(25.0, TemperatureUnit.CELSIUS);
+
+		demonstrateConversion(temp1, TemperatureUnit.FAHRENHEIT);
+		demonstrateConversion(temp1, TemperatureUnit.KELVIN);
+
+		Quantity<TemperatureUnit> t1 = new Quantity<>(30.0, TemperatureUnit.CELSIUS);
+
+		Quantity<TemperatureUnit> t2 = new Quantity<>(20.0, TemperatureUnit.CELSIUS);
+
+		try {
+			demonstrateAddition(t1, t2);
+		} catch (UnsupportedOperationException e) {
+			System.out.println("Addition Error: " + e.getMessage());
+		}
+
+		try {
+			demonstrateDivision(t1, t2);
+		} catch (UnsupportedOperationException e) {
+			System.out.println("Division Error: " + e.getMessage());
+		}
 	}
 }
