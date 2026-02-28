@@ -40,3 +40,14 @@
 		
 		- Added UC-12 in feature/UC12-SubtractionAndDivisionOperationsOnQuantityMeasurements
 		- Added subtraction and division 
+	
+## Day 7
+		- Added UC-13 in feature/UC13-Centralized-Arithmetic-Logic-to-Enforce-DRY-in-Quantity-Operation
+		- Added Centralized Arithmetic Logic
+		
+		- Added UC-14 in feature/UC14-Temperature-Measurement-with-Selective-Arithmetic-Support-and-Measurable-Refactoring 
+		- Added subtraction and division Temperature Measurement
+		
+## Day 8
+		- Added UC-15 in feature/UC15-N-Tier
+		- Refactored Code to follow N Tier Architecture
