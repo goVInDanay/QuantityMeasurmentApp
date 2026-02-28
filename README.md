@@ -40,3 +40,10 @@
 		
 		- Added UC-12 in feature/UC12-SubtractionAndDivisionOperationsOnQuantityMeasurements
 		- Added subtraction and division 
+	
+## Day 7
+		- Added UC-13 in feature/UC13-Centralized-Arithmetic-Logic-to-Enforce-DRY-in-Quantity-Operation
+		- Added volume actions functionality
+		
+		- Added UC-14 in feature/UC14-Temperature-Measurement-with-Selective-Arithmetic-Support-and-Measurable-Refactoring 
+		- Added subtraction and division 
