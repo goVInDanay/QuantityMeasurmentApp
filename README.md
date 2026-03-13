@@ -51,3 +51,7 @@
 ## Day 8
 		- Added UC-15 in feature/UC15-N-Tier
 		- Refactored Code to follow N Tier Architecture
+		
+## Day 9
+		- Added UC-16 in feature/UC16-Database-Integration-with-JDBC-for-Quantity-Measurement-Persistence
+		- Added Database with JDBC
