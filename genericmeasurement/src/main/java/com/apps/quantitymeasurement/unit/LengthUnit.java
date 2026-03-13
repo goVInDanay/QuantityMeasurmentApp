@@ -1,11 +1,11 @@
-package com.apps.quantitymeasurement.entity;
+package com.apps.quantitymeasurement.unit;
 
-public enum VolumeUnit implements IMeasurable {
-	LITRE(1.0), MILLILITRE(0.001), GALLON(3.78541);
+public enum LengthUnit implements IMeasurable {
+	FEET(1.0), INCHES(1.0 / 12.0), YARDS(3.0), CENTIMETERS(0.0328084);
 
 	private final double conversionFactor;
 
-	private VolumeUnit(double conversionFactor) {
+	private LengthUnit(double conversionFactor) {
 		this.conversionFactor = conversionFactor;
 	}
 
@@ -37,12 +37,12 @@ public enum VolumeUnit implements IMeasurable {
 
 	@Override
 	public String getMeasurementType() {
-		return this.getClass().getName();
+		return this.getClass().getSimpleName();
 	}
 
 	@Override
 	public IMeasurable getUnitInstance(String unitName) {
-		for (VolumeUnit unit : VolumeUnit.values()) {
+		for (LengthUnit unit : LengthUnit.values()) {
 			if (unit.getUnitName().equalsIgnoreCase(unitName)) {
 				return unit;
 			}

@@ -1,14 +1,21 @@
 package com.apps.quantitymeasurement.controller;
 
+import java.util.logging.Logger;
+
+import com.apps.quantitymeasurement.QuantityMeasurementApp;
 import com.apps.quantitymeasurement.entity.QuantityDTO;
 import com.apps.quantitymeasurement.service.IQuantityMeasurementService;
+import com.apps.quantitymeasurement.service.QuantityMeasurementServiceImpl;
 
 public class QuantityMeasurementController {
+
+	private static final Logger logger = Logger.getLogger(QuantityMeasurementController.class.getName());
 
 	private IQuantityMeasurementService quantityMeasurementService;
 
 	public QuantityMeasurementController(IQuantityMeasurementService quantityMeasurementService) {
 		this.quantityMeasurementService = quantityMeasurementService;
+		logger.info("Quantity Measurement Controller initialized with service : " + quantityMeasurementService);
 	}
 
 	public boolean performComparison(QuantityDTO thisQuantityDTO, QuantityDTO thatQuantityDTO) {

@@ -1,16 +1,23 @@
 package com.apps.quantitymeasurement.service;
 
+import java.util.logging.Logger;
+
+import com.apps.quantitymeasurement.QuantityMeasurementApp;
 import com.apps.quantitymeasurement.entity.*;
 import com.apps.quantitymeasurement.exception.QuantityMeasurementException;
 import com.apps.quantitymeasurement.repository.IQuantityMeasurementRepository;
+import com.apps.quantitymeasurement.unit.*;
 
 public class QuantityMeasurementServiceImpl implements IQuantityMeasurementService {
+
+	private static final Logger logger = Logger.getLogger(QuantityMeasurementServiceImpl.class.getName());
 
 	private IQuantityMeasurementRepository repository;
 	private static final double EPSILON = 0.00001;
 
 	public QuantityMeasurementServiceImpl(IQuantityMeasurementRepository repository) {
 		this.repository = repository;
+		logger.info("Quantity Measurement Service initialized with repository : " + repository);
 	}
 
 	private enum Operation {

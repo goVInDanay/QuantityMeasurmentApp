@@ -1,151 +1,117 @@
 package com.apps.quantitymeasurement;
 
 import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import com.apps.quantitymeasurement.controller.QuantityMeasurementController;
+import com.apps.quantitymeasurement.entity.QuantityDTO;
+import com.apps.quantitymeasurement.exception.QuantityMeasurementException;
 
 public class QuantityMeasurementAppTest {
 
 	private static final double EPSILON = 0.00001;
 
-	@Test
-	public void testEquality() {
-		Quantity<LengthUnit> l1 = new Quantity<>(1.0, LengthUnit.FEET);
-		Quantity<LengthUnit> l2 = new Quantity<>(12.0, LengthUnit.INCHES);
-		assertTrue(QuantityMeasurementApp.demonstrateEquality(l1, l2));
+	private QuantityMeasurementController controller;
 
-		Quantity<WeightUnit> w1 = new Quantity<>(1.0, WeightUnit.KILOGRAM);
-		Quantity<WeightUnit> w2 = new Quantity<>(1000.0, WeightUnit.GRAM);
-		assertTrue(QuantityMeasurementApp.demonstrateEquality(w1, w2));
-
-		Quantity<VolumeUnit> v1 = new Quantity<>(1.0, VolumeUnit.LITRE);
-		Quantity<VolumeUnit> v2 = new Quantity<>(0.264172, VolumeUnit.GALLON);
-		assertTrue(QuantityMeasurementApp.demonstrateEquality(v1, v2));
+	@BeforeEach
+	void setup() {
+		controller = QuantityMeasurementApp.getInstance().controller;
 	}
 
 	@Test
-	public void testComparisonUsingValues() {
-		assertTrue(QuantityMeasurementApp.demonstrateComparison(3.0, LengthUnit.FEET, 1.0, LengthUnit.YARDS));
+	void testLengthEquality() {
+		QuantityDTO feet = QuantityDTO.ofLength(1, "FEET");
+		QuantityDTO inches = QuantityDTO.ofLength(12, "INCHES");
 
-		assertTrue(QuantityMeasurementApp.demonstrateComparison(1.0, WeightUnit.KILOGRAM, 1000.0, WeightUnit.GRAM));
-
-		assertTrue(QuantityMeasurementApp.demonstrateComparison(1.0, VolumeUnit.LITRE, 1000.0, VolumeUnit.MILLILITRE));
+		assertTrue(controller.performComparison(feet, inches));
 	}
 
 	@Test
-	public void testConversion() {
-		Quantity<LengthUnit> length = new Quantity<>(1.0, LengthUnit.FEET);
-		Quantity<LengthUnit> convertedLength = QuantityMeasurementApp.demonstrateConversion(length, LengthUnit.INCHES);
-		assertEquals(12.0, convertedLength.getValue(), EPSILON);
-		assertEquals(LengthUnit.INCHES, convertedLength.getUnit());
+	void testWeightEquality() {
+		QuantityDTO kg = QuantityDTO.ofWeight(1, "KILOGRAM");
+		QuantityDTO gram = QuantityDTO.ofWeight(1000, "GRAM");
 
-		Quantity<WeightUnit> weight = new Quantity<>(1.0, WeightUnit.KILOGRAM);
-		Quantity<WeightUnit> convertedWeight = QuantityMeasurementApp.demonstrateConversion(weight, WeightUnit.GRAM);
-		assertEquals(1000.0, convertedWeight.getValue(), EPSILON);
-		assertEquals(WeightUnit.GRAM, convertedWeight.getUnit());
-
-		Quantity<VolumeUnit> volume = new Quantity<>(1.0, VolumeUnit.LITRE);
-		Quantity<VolumeUnit> convertedVolume = QuantityMeasurementApp.demonstrateConversion(volume,
-				VolumeUnit.MILLILITRE);
-		assertEquals(1000.0, convertedVolume.getValue(), EPSILON); // FIXED
-		assertEquals(VolumeUnit.MILLILITRE, convertedVolume.getUnit());
+		assertTrue(controller.performComparison(kg, gram));
 	}
 
 	@Test
-	public void testAdditionDefaultUnit() {
-		Quantity<LengthUnit> l1 = new Quantity<>(2.0, LengthUnit.YARDS);
-		Quantity<LengthUnit> l2 = new Quantity<>(3.0, LengthUnit.FEET);
+	void testVolumeEquality() {
+		QuantityDTO litre = QuantityDTO.ofVolume(1, "LITRE");
+		QuantityDTO gallon = QuantityDTO.ofVolume(0.264172, "GALLON");
 
-		Quantity<LengthUnit> sum = QuantityMeasurementApp.demonstrateAddition(l1, l2);
-		assertEquals(3.0, sum.getValue());
-		assertEquals(LengthUnit.YARDS, sum.getUnit());
-
-		Quantity<WeightUnit> w1 = new Quantity<>(1.0, WeightUnit.KILOGRAM);
-		Quantity<WeightUnit> w2 = new Quantity<>(1000.0, WeightUnit.GRAM);
-
-		Quantity<WeightUnit> sumWeight = QuantityMeasurementApp.demonstrateAddition(w1, w2);
-		assertEquals(2.0, sumWeight.getValue(), EPSILON);
-		assertEquals(WeightUnit.KILOGRAM, sumWeight.getUnit());
-
-		Quantity<VolumeUnit> v1 = new Quantity<>(1.0, VolumeUnit.LITRE);
-		Quantity<VolumeUnit> v2 = new Quantity<>(1000.0, VolumeUnit.MILLILITRE);
-
-		Quantity<VolumeUnit> sumVolume = QuantityMeasurementApp.demonstrateAddition(v1, v2);
-		assertEquals(2.0, sumVolume.getValue(), EPSILON);
-		assertEquals(VolumeUnit.LITRE, sumVolume.getUnit());
+		assertTrue(controller.performComparison(litre, gallon));
 	}
 
 	@Test
-	public void testAdditionWithTargetUnit() {
-		Quantity<LengthUnit> l1 = new Quantity<>(2.0, LengthUnit.YARDS);
-		Quantity<LengthUnit> l2 = new Quantity<>(3.0, LengthUnit.FEET);
+	void testConversion() {
+		QuantityDTO feet = QuantityDTO.ofLength(1, "FEET");
 
-		Quantity<LengthUnit> sum = QuantityMeasurementApp.demonstrateAddition(l1, l2, LengthUnit.INCHES);
-		assertEquals(108.0, sum.getValue(), EPSILON);
-		assertEquals(LengthUnit.INCHES, sum.getUnit());
+		QuantityDTO result = controller.performConversion(feet, "INCHES");
 
-		Quantity<WeightUnit> w1 = new Quantity<>(1.0, WeightUnit.KILOGRAM);
-		Quantity<WeightUnit> w2 = new Quantity<>(1000.0, WeightUnit.GRAM);
-
-		Quantity<WeightUnit> sumWeight = QuantityMeasurementApp.demonstrateAddition(w1, w2, WeightUnit.GRAM);
-		assertEquals(2000.0, sumWeight.getValue(), EPSILON);
-		assertEquals(WeightUnit.GRAM, sumWeight.getUnit());
-
-		Quantity<VolumeUnit> v1 = new Quantity<>(1.0, VolumeUnit.LITRE);
-		Quantity<VolumeUnit> v2 = new Quantity<>(1000.0, VolumeUnit.MILLILITRE);
-
-		Quantity<VolumeUnit> sumVolume = QuantityMeasurementApp.demonstrateAddition(v1, v2, VolumeUnit.MILLILITRE);
-		assertEquals(2000.0, sumVolume.getValue(), EPSILON);
-		assertEquals(VolumeUnit.MILLILITRE, sumVolume.getUnit());
+		assertEquals(12.0, result.getValue(), EPSILON);
+		assertEquals("INCHES", result.getUnit().getUnitName());
 	}
 
 	@Test
-	public void testSubtractionDefaultUnit() {
-		Quantity<LengthUnit> l1 = new Quantity<>(10.0, LengthUnit.FEET);
-		Quantity<LengthUnit> l2 = new Quantity<>(6.0, LengthUnit.INCHES);
+	void testAdditionDefaultUnit() {
+		QuantityDTO yards = QuantityDTO.ofLength(2, "YARDS");
+		QuantityDTO feet = QuantityDTO.ofLength(3, "FEET");
 
-		Quantity<LengthUnit> result = l1.subtract(l2);
+		QuantityDTO result = controller.performAddition(yards, feet);
 
-		assertEquals(9.5, result.getValue(), EPSILON);
-		assertEquals(LengthUnit.FEET, result.getUnit());
+		assertEquals(3.0, result.getValue(), EPSILON);
+		assertEquals("YARDS", result.getUnit().getUnitName());
 	}
 
 	@Test
-	public void testSubtractionWithTargetUnit() {
-		Quantity<LengthUnit> l1 = new Quantity<>(10.0, LengthUnit.FEET);
-		Quantity<LengthUnit> l2 = new Quantity<>(6.0, LengthUnit.INCHES);
+	void testDivision() {
+		QuantityDTO inches = QuantityDTO.ofLength(24, "INCHES");
+		QuantityDTO feet = QuantityDTO.ofLength(2, "FEET");
 
-		Quantity<LengthUnit> result = l1.subtract(l2, LengthUnit.INCHES);
-
-		assertEquals(114.0, result.getValue(), EPSILON);
-		assertEquals(LengthUnit.INCHES, result.getUnit());
-	}
-
-	@Test
-	public void testDivisionDefaultUnit() {
-		Quantity<LengthUnit> l1 = new Quantity<>(24.0, LengthUnit.INCHES);
-		Quantity<LengthUnit> l2 = new Quantity<>(2.0, LengthUnit.FEET);
-
-		double result = l1.divide(l2);
+		double result = controller.performDivision(inches, feet);
 
 		assertEquals(1.0, result, EPSILON);
 	}
 
 	@Test
-	public void testArithmeticOperationDivideByZero() {
-		Quantity<LengthUnit> q1 = new Quantity<>(10.0, LengthUnit.FEET);
-		Quantity<LengthUnit> q2 = new Quantity<>(0.0, LengthUnit.FEET);
+	void testDivisionByZero() {
+		QuantityDTO q1 = QuantityDTO.ofLength(10, "FEET");
+		QuantityDTO q2 = QuantityDTO.ofLength(0, "FEET");
 
-		ArithmeticException exception = assertThrows(ArithmeticException.class, () -> q1.divide(q2));
-		assertEquals("Cannot divide by 0", exception.getMessage());
+		QuantityMeasurementException exception = assertThrows(QuantityMeasurementException.class,
+				() -> controller.performDivision(q1, q2));
+
+		assertEquals("Division by zero not allowed", exception.getMessage());
 	}
 
 	@Test
-	public void testIncompatibleTypes() {
-		Quantity<LengthUnit> length = new Quantity<>(1.0, LengthUnit.FEET);
-		Quantity<WeightUnit> weight = new Quantity<>(1.0, WeightUnit.KILOGRAM);
-		Quantity<VolumeUnit> volume = new Quantity<>(1.0, VolumeUnit.LITRE);
+	void testTemperatureConversion() {
+		QuantityDTO celsius = QuantityDTO.ofTemperature(0, "CELSIUS");
 
-		assertFalse(length.equals(weight));
-		assertFalse(weight.equals(volume));
+		QuantityDTO result = controller.performConversion(celsius, "FAHRENHEIT");
+
+		assertEquals(32.0, result.getValue(), EPSILON);
 	}
+
+	@Test
+	void testTemperatureUnsupportedAddition() {
+		QuantityDTO t1 = QuantityDTO.ofTemperature(30, "CELSIUS");
+		QuantityDTO t2 = QuantityDTO.ofTemperature(20, "CELSIUS");
+
+		QuantityMeasurementException exception = assertThrows(QuantityMeasurementException.class,
+				() -> controller.performAddition(t1, t2));
+
+		assertTrue(exception.getMessage().contains("not allowed"));
+	}
+
+	@Test
+	void testCrossCategoryComparison() {
+		QuantityDTO length = QuantityDTO.ofLength(1, "FEET");
+		QuantityDTO weight = QuantityDTO.ofWeight(1, "KILOGRAM");
+
+		assertThrows(QuantityMeasurementException.class, () -> controller.performComparison(length, weight));
+	}
+
 }
