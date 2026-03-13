@@ -23,9 +23,10 @@ replay_pid*
 # Maven / Eclipse
 # -------------------------
 /target/                 # Maven build output
-/.classpath
-/.project
-/.settings/
+.classpath
+.project
+.settings/
+.properties
 /*.launch
 
 # -------------------------
