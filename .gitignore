@@ -28,7 +28,7 @@ replay_pid*
 .settings/
 .properties
 /*.launch
-
+src/main/resources/application.properties
 # -------------------------
 # IDE / editor files
 # -------------------------
@@ -46,3 +46,4 @@ Thumbs.db               # Windows
 # -------------------------
 *.tmp
 *.swp
+/target/
