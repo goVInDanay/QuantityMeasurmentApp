@@ -1,0 +1,3 @@
+2026-03-13 15:06:21.653200+05:30 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "QUANTITY_MEASUREMENT_ENTITY" not found (this database is empty); SQL statement:
+SELECT COUNT(*) FROM quantity_measurement_entity [42104-224]
