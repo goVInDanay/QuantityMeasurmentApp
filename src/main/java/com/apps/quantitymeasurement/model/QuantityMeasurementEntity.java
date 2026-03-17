@@ -46,7 +46,6 @@ public class QuantityMeasurementEntity {
 
 	private LocalDateTime updatedAt;
 
-	// Constructor used in service
 	public QuantityMeasurementEntity(QuantityModel<IMeasurable> thisModel, QuantityModel<IMeasurable> thatModel,
 			String operation, String resultString) {
 
