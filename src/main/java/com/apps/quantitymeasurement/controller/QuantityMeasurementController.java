@@ -12,7 +12,7 @@ import com.apps.quantitymeasurement.service.IQuantityMeasurementService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/quantity")
+@RequestMapping("/api/quantity")
 public class QuantityMeasurementController {
 
 	private static final Logger logger = LoggerFactory.getLogger(QuantityMeasurementController.class);

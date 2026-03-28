@@ -5,8 +5,8 @@
 *.log
 *.ctxt
 .mtj.tmp/
-
 # Package Files #
+
 *.jar
 *.war
 *.nar
@@ -47,3 +47,4 @@ Thumbs.db               # Windows
 *.tmp
 *.swp
 /target/
+src/main/resources/application-secret.properties

@@ -1,10 +1,11 @@
-package com.apps.quantitymeasurement.model;
+package com.apps.quantitymeasurement.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
 
+import com.apps.quantitymeasurement.model.QuantityModel;
 import com.apps.quantitymeasurement.unit.IMeasurable;
 
 @Entity
