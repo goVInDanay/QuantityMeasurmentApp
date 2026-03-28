@@ -55,3 +55,11 @@
 ## Day 9
 		- Added UC-16 in feature/UC16-Database-Integration-with-JDBC-for-Quantity-Measurement-Persistence
 		- Added Database with JDBC
+		
+## Day 10
+		- Added UC-17 in feature/UC17-Spring-Backend-for-Quantity-Measurement
+		- Converted Project to Spring Boot
+
+## Day 11
+		- Added UC-18 in feature/UC18-Google-Authentication-and-User-Management-for-Quantity-Measurement
+		- Added OAuth-2 and Jwt with Spring Security
