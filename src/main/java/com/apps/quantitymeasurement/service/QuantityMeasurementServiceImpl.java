@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.apps.quantitymeasurement.entities.QuantityMeasurementEntity;
+import com.apps.quantitymeasurement.entities.User;
 import com.apps.quantitymeasurement.exception.QuantityMeasurementException;
 import com.apps.quantitymeasurement.model.*;
 import com.apps.quantitymeasurement.repository.QuantityMeasurementDatabaseRepository;
@@ -15,11 +16,13 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
 
 	private static final Logger logger = LoggerFactory.getLogger(QuantityMeasurementServiceImpl.class);
 
+	private final UserService userService;
 	private QuantityMeasurementDatabaseRepository repository;
 	private static final double EPSILON = 0.00001;
 
-	public QuantityMeasurementServiceImpl(QuantityMeasurementDatabaseRepository repository) {
+	public QuantityMeasurementServiceImpl(QuantityMeasurementDatabaseRepository repository, UserService userService) {
 		this.repository = repository;
+		this.userService = userService;
 		logger.info("Quantity Measurement Service initialized with repository : " + repository);
 	}
 
@@ -41,8 +44,10 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
 
 		boolean result = Math.abs(base1 - base2) < EPSILON;
 
-		repository.save(new QuantityMeasurementEntity(thisModel, thatModel, Operation.COMPARISON.name(),
-				String.valueOf(result)));
+		QuantityMeasurementEntity entity = new QuantityMeasurementEntity(thisModel, thatModel,
+				Operation.COMPARISON.name(), String.valueOf(result));
+
+		saveMeasurementForCurrentUser(entity);
 
 		return result;
 	}
@@ -61,8 +66,10 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
 
 		QuantityModel<IMeasurable> targetModel = new QuantityModel<>(convertedValue, targetUnit);
 
-		repository.save(new QuantityMeasurementEntity(source, targetModel, Operation.CONVERSION.name(),
-				String.valueOf(convertedValue)));
+		QuantityMeasurementEntity entity = new QuantityMeasurementEntity(source, targetModel,
+				Operation.CONVERSION.name(), String.valueOf(convertedValue));
+
+		saveMeasurementForCurrentUser(entity);
 
 		return new QuantityDTO(convertedValue, targetUnit.getUnitName(), sourceUnit.getMeasurementType());
 	}
@@ -106,8 +113,10 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
 
 		double result = base1 / base2;
 
-		repository.save(new QuantityMeasurementEntity(thisModel, thatModel, Operation.ARITHMETIC.name(),
-				String.valueOf(result)));
+		QuantityMeasurementEntity entity = new QuantityMeasurementEntity(thisModel, thatModel,
+				Operation.ARITHMETIC.name(), String.valueOf(result));
+
+		saveMeasurementForCurrentUser(entity);
 
 		return result;
 	}
@@ -129,8 +138,10 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
 
 		double finalValue = targetModel.getUnit().convertFromBaseUnit(resultBase);
 
-		repository.save(new QuantityMeasurementEntity(thisModel, thatModel, Operation.ARITHMETIC.name(),
-				String.valueOf(finalValue)));
+		QuantityMeasurementEntity entity = new QuantityMeasurementEntity(thisModel, thatModel,
+				Operation.ARITHMETIC.name(), String.valueOf(finalValue));
+
+		saveMeasurementForCurrentUser(entity);
 
 		return new QuantityDTO(finalValue, targetDTO.getUnit(), targetDTO.getMeasurementType());
 	}
@@ -184,5 +195,10 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
 		}
 
 		return new QuantityModel<>(dto.getValue(), measurableUnit);
+	}
+
+	private void saveMeasurementForCurrentUser(QuantityMeasurementEntity entity) {
+		entity.setUser(userService.getCurrentUser());
+		repository.save(entity);
 	}
 }

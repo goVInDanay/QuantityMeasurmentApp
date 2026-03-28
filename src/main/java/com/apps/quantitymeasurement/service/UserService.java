@@ -1,7 +1,7 @@
 package com.apps.quantitymeasurement.service;
 
-import java.util.Optional;
-
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import com.apps.quantitymeasurement.entities.User;
@@ -39,5 +39,20 @@ public class UserService {
 	public User getByEmail(String email) {
 		return userRepository.findByEmail(email)
 				.orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
+	}
+
+	public User getCurrentUser() {
+		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+		String email;
+		if (principal instanceof OAuth2User oauthUser) {
+			email = oauthUser.getAttribute("email");
+		} else if (principal instanceof String s) {
+			email = (String) s;
+		} else {
+			throw new IllegalStateException("Unknown principal type: " + principal.getClass());
+		}
+
+		return getByEmail(email);
 	}
 }
