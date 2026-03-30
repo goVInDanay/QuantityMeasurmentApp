@@ -44,6 +44,6 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 		jwtCookie.setMaxAge(24 * 60 * 60);
 
 		response.addCookie(jwtCookie);
-		response.sendRedirect("http://localhost:8080/api/user/profile");
+		response.sendRedirect("http://localhost:5500/dashboard.html");
 	}
 }

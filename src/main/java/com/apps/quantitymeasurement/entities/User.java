@@ -34,6 +34,7 @@ public class User {
 
 	private String provider;
 
+	private String password;
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<QuantityMeasurementEntity> measurements = new ArrayList<>();
 }
