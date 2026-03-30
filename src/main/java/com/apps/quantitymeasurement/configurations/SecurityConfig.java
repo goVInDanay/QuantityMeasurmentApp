@@ -25,11 +25,21 @@ public class SecurityConfig {
 
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		http.csrf(csrf -> csrf.disable()).addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-				.authorizeHttpRequests(
-						auth -> auth.requestMatchers("/", "/login", "/error").permitAll().anyRequest().authenticated())
+		http.csrf(csrf -> csrf.disable()).cors(cors -> {
+		}).addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+				.authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**", "/oauth2/**").permitAll()
+						.anyRequest().authenticated())
 				.oauth2Login(oauth -> oauth.successHandler(successHandler))
-				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED));
+				.exceptionHandling(ex -> ex.authenticationEntryPoint((request, response, authException) -> {
+					String uri = request.getRequestURI();
+					if (uri.startsWith("/api/")) {
+						response.setStatus(401);
+						response.setContentType("application/json");
+						response.getWriter().write("{\"error\":\"Unauthorized\"}");
+					} else {
+						response.sendRedirect("/oauth2/authorization/google");
+					}
+				})).sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED));
 		return http.build();
 	}
 }

@@ -37,7 +37,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 		User user = userService.saveOrUpdate(userDto, "GOOGLE");
 
 		String token = jwtUtil.generateToken(email);
-		Cookie jwtCookie = new Cookie("JWT", token);
+		Cookie jwtCookie = new Cookie("JwtToken", token);
 		jwtCookie.setHttpOnly(true);
 		jwtCookie.setSecure(false);
 		jwtCookie.setPath("/");

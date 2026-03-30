@@ -15,6 +15,7 @@ import com.apps.quantitymeasurement.service.UserService;
 import com.apps.quantitymeasurement.util.JwtUtil;
 import com.apps.quantitymeasurement.util.PasswordValidator;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
@@ -40,7 +41,7 @@ public class AuthController {
 		}
 		User user = userService.register(request);
 		String token = jwtUtil.generateToken(user.getEmail());
-		ResponseCookie cookie = ResponseCookie.from("token", token).httpOnly(true).secure(false).path("/")
+		ResponseCookie cookie = ResponseCookie.from("JwtToken", token).httpOnly(true).secure(false).path("/")
 				.maxAge(24 * 60 * 60).sameSite("Lax").build();
 		response.addHeader("Set-Cookie", cookie.toString());
 		return ResponseEntity.ok("User registered successfully");
@@ -51,9 +52,11 @@ public class AuthController {
 
 		User user = userService.authenticate(request.getEmail(), request.getPassword());
 		String token = jwtUtil.generateToken(user.getEmail());
-		ResponseCookie cookie = ResponseCookie.from("token", token).httpOnly(true).secure(false).path("/")
-				.maxAge(24 * 60 * 60).sameSite("Lax").build();
-		response.addHeader("Set-Cookie", cookie.toString());
+		Cookie cookie = new Cookie("JwtToken", token);
+		cookie.setHttpOnly(true);
+		cookie.setPath("/");
+		cookie.setMaxAge(24 * 60 * 60);
+		response.addCookie(cookie);
 		return ResponseEntity.ok("Login Successful");
 	}
 
