@@ -12,6 +12,7 @@ import com.apps.quantitymeasurement.util.JwtUtil;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -28,20 +29,29 @@ public class JwtFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 
+		String token = null;
 		String authHeader = request.getHeader("Authorization");
 
 		if (authHeader != null && authHeader.startsWith("Bearer ")) {
-			String token = authHeader.substring(7);
-			String email = jwtUtil.extractEmail(token);
+			token = authHeader.substring(7);
+		}
 
-			if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-				UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(token, null,
+		if (token == null && request.getCookies() != null) {
+			for (Cookie cookie : request.getCookies()) {
+				if ("JwtToken".equals(cookie.getName())) {
+					token = cookie.getValue();
+				}
+			}
+		}
+
+		if (token != null) {
+			String email = jwtUtil.extractEmail(token);
+			if (email != null && jwtUtil.isTokenValid(token, email)) {
+				UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(email, null,
 						List.of());
 				SecurityContextHolder.getContext().setAuthentication(auth);
 			}
 		}
-
 		filterChain.doFilter(request, response);
-
 	}
 }

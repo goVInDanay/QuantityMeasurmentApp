@@ -37,13 +37,13 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 		User user = userService.saveOrUpdate(userDto, "GOOGLE");
 
 		String token = jwtUtil.generateToken(email);
-		Cookie jwtCookie = new Cookie("JWT", token);
+		Cookie jwtCookie = new Cookie("JwtToken", token);
 		jwtCookie.setHttpOnly(true);
 		jwtCookie.setSecure(false);
 		jwtCookie.setPath("/");
 		jwtCookie.setMaxAge(24 * 60 * 60);
 
 		response.addCookie(jwtCookie);
-		response.sendRedirect("http://localhost:8080/api/user/profile");
+		response.sendRedirect("http://localhost:5500/dashboard.html");
 	}
 }
