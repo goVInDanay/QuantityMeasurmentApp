@@ -15,15 +15,14 @@ import com.apps.quantitymeasurement.unit.*;
 public class QuantityMeasurementServiceImpl implements IQuantityMeasurementService {
 
 	private static final Logger logger = LoggerFactory.getLogger(QuantityMeasurementServiceImpl.class);
-
-	private final UserService userService;
-	private QuantityMeasurementDatabaseRepository repository;
 	private static final double EPSILON = 0.00001;
 
-	public QuantityMeasurementServiceImpl(QuantityMeasurementDatabaseRepository repository, UserService userService) {
-		this.repository = repository;
+	private final UserService userService;
+	private final QuantityHistoryService historyService;
+
+	public QuantityMeasurementServiceImpl(UserService userService, QuantityHistoryService historyService) {
 		this.userService = userService;
-		logger.info("Quantity Measurement Service initialized with repository : " + repository);
+		this.historyService = historyService;
 	}
 
 	private enum Operation {
@@ -37,113 +36,133 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
 	@Override
 	public boolean compare(QuantityDTO thisDTO, QuantityDTO thatDTO) {
 
-		QuantityModel<IMeasurable> thisModel = getQuantityModel(thisDTO);
-		QuantityModel<IMeasurable> thatModel = getQuantityModel(thatDTO);
-		double base1 = thisModel.getUnit().convertToBaseUnit(thisModel.getValue());
-		double base2 = thatModel.getUnit().convertToBaseUnit(thatModel.getValue());
+		User user = userService.getCurrentUser();
 
-		boolean result = Math.abs(base1 - base2) < EPSILON;
+		try {
+			QuantityModel<IMeasurable> thisModel = getQuantityModel(thisDTO);
+			QuantityModel<IMeasurable> thatModel = getQuantityModel(thatDTO);
 
-		QuantityMeasurementEntity entity = new QuantityMeasurementEntity(thisModel, thatModel,
-				Operation.COMPARISON.name(), String.valueOf(result));
+			double base1 = thisModel.getUnit().convertToBaseUnit(thisModel.getValue());
+			double base2 = thatModel.getUnit().convertToBaseUnit(thatModel.getValue());
 
-		saveMeasurementForCurrentUser(entity);
+			boolean result = Math.abs(base1 - base2) < EPSILON;
 
-		return result;
+			QuantityModel<IMeasurable> resultModel = new QuantityModel<>(result ? 1 : 0, thisModel.getUnit());
+			if (user != null) {
+				historyService.saveSuccess(thisModel, thatModel, resultModel, OperationType.COMPARE, user);
+			}
+
+			return result;
+
+		} catch (Exception e) {
+			historyService.saveError(null, null, OperationType.COMPARE, e.getMessage(), user);
+			throw e;
+		}
 	}
 
 	@Override
 	public QuantityDTO convert(QuantityDTO thisDTO, String targetUnitName) {
+		logger.info("DTO: {}", thisDTO);
+		logger.info("Target Unit: {}", targetUnitName);
+		User user = userService.getCurrentUser();
+		try {
+			QuantityModel<IMeasurable> source = getQuantityModel(thisDTO);
 
-		QuantityModel<IMeasurable> source = getQuantityModel(thisDTO);
+			IMeasurable sourceUnit = source.getUnit();
+			IMeasurable targetUnit = sourceUnit.getUnitInstance(targetUnitName);
 
-		IMeasurable sourceUnit = source.getUnit();
-		IMeasurable targetUnit = sourceUnit.getUnitInstance(targetUnitName);
-		validateMeasurementType(sourceUnit, targetUnit);
+			validateMeasurementType(sourceUnit, targetUnit);
 
-		double baseValue = sourceUnit.convertToBaseUnit(source.getValue());
-		double convertedValue = targetUnit.convertFromBaseUnit(baseValue);
+			double baseValue = sourceUnit.convertToBaseUnit(source.getValue());
+			double convertedValue = targetUnit.convertFromBaseUnit(baseValue);
 
-		QuantityModel<IMeasurable> targetModel = new QuantityModel<>(convertedValue, targetUnit);
+			QuantityModel<IMeasurable> resultModel = new QuantityModel<>(convertedValue, targetUnit);
+			if (user != null) {
+				historyService.saveConversion(source, resultModel, OperationType.CONVERT, user);
+			}
+			return new QuantityDTO(convertedValue, targetUnit.getUnitName(), targetUnit.getMeasurementType());
 
-		QuantityMeasurementEntity entity = new QuantityMeasurementEntity(source, targetModel,
-				Operation.CONVERSION.name(), String.valueOf(convertedValue));
-
-		saveMeasurementForCurrentUser(entity);
-
-		return new QuantityDTO(convertedValue, targetUnit.getUnitName(), sourceUnit.getMeasurementType());
-	}
-
-	@Override
-	public QuantityDTO add(QuantityDTO thisDTO, QuantityDTO thatDTO) {
-		return add(thisDTO, thatDTO, thisDTO);
+		} catch (Exception e) {
+			historyService.saveError(null, null, OperationType.CONVERT, e.getMessage(), user);
+			throw e;
+		}
 	}
 
 	@Override
 	public QuantityDTO add(QuantityDTO thisDTO, QuantityDTO thatDTO, QuantityDTO targetDTO) {
+		return performArithmetic(thisDTO, thatDTO, targetDTO, OperationType.ADD);
+	}
 
-		return performArithmetic(thisDTO, thatDTO, targetDTO, ArithmeticOperation.ADD);
+	@Override
+	public QuantityDTO add(QuantityDTO thisDTO, QuantityDTO thatDTO) {
+		return performArithmetic(thisDTO, thatDTO, thisDTO, OperationType.ADD);
 	}
 
 	@Override
 	public QuantityDTO subtract(QuantityDTO thisDTO, QuantityDTO thatDTO) {
-		return subtract(thisDTO, thatDTO, thisDTO);
+		return performArithmetic(thisDTO, thatDTO, thisDTO, OperationType.SUBTRACT);
 	}
 
 	@Override
 	public QuantityDTO subtract(QuantityDTO thisDTO, QuantityDTO thatDTO, QuantityDTO targetDTO) {
-
-		return performArithmetic(thisDTO, thatDTO, targetDTO, ArithmeticOperation.SUBTRACT);
+		return performArithmetic(thisDTO, thatDTO, targetDTO, OperationType.SUBTRACT);
 	}
 
 	@Override
 	public double divide(QuantityDTO thisDTO, QuantityDTO thatDTO) {
-
-		QuantityModel<IMeasurable> thisModel = getQuantityModel(thisDTO);
-		QuantityModel<IMeasurable> thatModel = getQuantityModel(thatDTO);
-
-		validateArithmeticOperands(thisModel, thatModel);
-
-		double base1 = thisModel.getUnit().convertToBaseUnit(thisModel.getValue());
-		double base2 = thatModel.getUnit().convertToBaseUnit(thatModel.getValue());
-
-		if (base2 == 0) {
-			throw new QuantityMeasurementException("Division by zero not allowed");
+		User user = userService.getCurrentUser();
+		try {
+			QuantityModel<IMeasurable> thisModel = getQuantityModel(thisDTO);
+			QuantityModel<IMeasurable> thatModel = getQuantityModel(thatDTO);
+			validateArithmeticOperands(thisModel, thatModel);
+			double base1 = thisModel.getUnit().convertToBaseUnit(thisModel.getValue());
+			double base2 = thatModel.getUnit().convertToBaseUnit(thatModel.getValue());
+			if (base2 == 0) {
+				throw new QuantityMeasurementException("Division by zero not allowed");
+			}
+			double result = base1 / base2;
+			QuantityModel<IMeasurable> resultModel = new QuantityModel<>(result, thisModel.getUnit());
+			if (user != null) {
+				historyService.saveSuccess(thisModel, thatModel, resultModel, OperationType.DIVIDE, user);
+			}
+			return result;
+		} catch (Exception e) {
+			historyService.saveError(null, null, OperationType.DIVIDE, e.getMessage(), user);
+			throw e;
 		}
-
-		double result = base1 / base2;
-
-		QuantityMeasurementEntity entity = new QuantityMeasurementEntity(thisModel, thatModel,
-				Operation.ARITHMETIC.name(), String.valueOf(result));
-
-		saveMeasurementForCurrentUser(entity);
-
-		return result;
 	}
 
 	private QuantityDTO performArithmetic(QuantityDTO thisDTO, QuantityDTO thatDTO, QuantityDTO targetDTO,
-			ArithmeticOperation operation) {
+			OperationType operation) {
 
-		QuantityModel<IMeasurable> thisModel = getQuantityModel(thisDTO);
-		QuantityModel<IMeasurable> thatModel = getQuantityModel(thatDTO);
-		QuantityModel<IMeasurable> targetModel = getQuantityModel(targetDTO);
+		User user = userService.getCurrentUser();
 
-		validateArithmeticOperands(thisModel, thatModel);
-		validateArithmeticOperands(thisModel, targetModel);
+		try {
+			QuantityModel<IMeasurable> thisModel = getQuantityModel(thisDTO);
+			QuantityModel<IMeasurable> thatModel = getQuantityModel(thatDTO);
+			QuantityModel<IMeasurable> targetModel = getQuantityModel(targetDTO);
 
-		double base1 = thisModel.getUnit().convertToBaseUnit(thisModel.getValue());
-		double base2 = thatModel.getUnit().convertToBaseUnit(thatModel.getValue());
+			validateArithmeticOperands(thisModel, thatModel);
+			validateArithmeticOperands(thisModel, targetModel);
 
-		double resultBase = (operation == ArithmeticOperation.ADD) ? base1 + base2 : base1 - base2;
+			double base1 = thisModel.getUnit().convertToBaseUnit(thisModel.getValue());
+			double base2 = thatModel.getUnit().convertToBaseUnit(thatModel.getValue());
 
-		double finalValue = targetModel.getUnit().convertFromBaseUnit(resultBase);
+			double resultBase = (operation == OperationType.ADD) ? base1 + base2 : base1 - base2;
 
-		QuantityMeasurementEntity entity = new QuantityMeasurementEntity(thisModel, thatModel,
-				Operation.ARITHMETIC.name(), String.valueOf(finalValue));
+			double finalValue = targetModel.getUnit().convertFromBaseUnit(resultBase);
 
-		saveMeasurementForCurrentUser(entity);
+			QuantityModel<IMeasurable> resultModel = new QuantityModel<>(finalValue, targetModel.getUnit());
+			if (user != null) {
+				historyService.saveSuccess(thisModel, thatModel, resultModel, operation, user);
+			}
 
-		return new QuantityDTO(finalValue, targetDTO.getUnit(), targetDTO.getMeasurementType());
+			return new QuantityDTO(finalValue, targetDTO.getUnit(), targetDTO.getMeasurementType());
+
+		} catch (Exception e) {
+			historyService.saveError(null, null, operation, e.getMessage(), user);
+			throw e;
+		}
 	}
 
 	private <U extends IMeasurable> void validateArithmeticOperands(QuantityModel<U> q1, QuantityModel<U> q2) {
@@ -195,10 +214,5 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
 		}
 
 		return new QuantityModel<>(dto.getValue(), measurableUnit);
-	}
-
-	private void saveMeasurementForCurrentUser(QuantityMeasurementEntity entity) {
-		entity.setUser(userService.getCurrentUser());
-		repository.save(entity);
 	}
 }

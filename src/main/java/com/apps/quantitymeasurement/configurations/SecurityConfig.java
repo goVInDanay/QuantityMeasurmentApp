@@ -28,7 +28,8 @@ public class SecurityConfig {
 		http.csrf(csrf -> csrf.disable()).cors(cors -> {
 		}).addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
 				.authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**", "/oauth2/**").permitAll()
-						.anyRequest().authenticated())
+						.requestMatchers("/api/quantity/**").permitAll().requestMatchers("/api/history/**")
+						.authenticated().requestMatchers("/api/user/**").authenticated().anyRequest().permitAll())
 				.oauth2Login(oauth -> oauth.successHandler(successHandler))
 				.exceptionHandling(ex -> ex.authenticationEntryPoint((request, response, authException) -> {
 					String uri = request.getRequestURI();
