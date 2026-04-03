@@ -66,17 +66,20 @@ public class UserService {
 	}
 
 	public User getCurrentUser() {
-		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		String email;
-		if (principal instanceof OAuth2User oauthUser) {
-			email = oauthUser.getAttribute("email");
-		} else if (principal instanceof org.springframework.security.core.userdetails.User userDetails) {
-			email = userDetails.getUsername();
-		} else if (principal instanceof String s) {
-			email = s;
-		} else {
-			throw new IllegalStateException("Unknown principal type: " + principal.getClass());
+		var authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || !authentication.isAuthenticated()) {
+			return null;
 		}
-		return getByEmail(email);
+		Object principal = authentication.getPrincipal();
+		
+		if (principal instanceof OAuth2User oauthUser) {
+			String email = oauthUser.getAttribute("email");
+			return userRepository.findByEmail(email).orElse(null);
+		} else if (principal instanceof org.springframework.security.core.userdetails.User userDetails) {
+			String email = userDetails.getUsername();
+			return userRepository.findByEmail(email).orElse(null);
+//			throw new IllegalStateException("U	nknown principal type: " + principal.getClass());
+		}
+		return null;
 	}
 }
