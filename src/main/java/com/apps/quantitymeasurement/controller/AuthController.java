@@ -41,9 +41,10 @@ public class AuthController {
 		}
 		User user = userService.register(request);
 		String token = jwtUtil.generateToken(user.getEmail());
-		ResponseCookie cookie = ResponseCookie.from("JwtToken", token).httpOnly(true).secure(false).path("/")
-				.maxAge(24 * 60 * 60).sameSite("Lax").build();
-		response.addHeader("Set-Cookie", cookie.toString());
+		String cookieHeader = String.format("JwtToken=%s; Max-Age=%d; Path=/; Secure; HttpOnly; SameSite=None", token,
+				24 * 60 * 60);
+
+		response.addHeader("Set-Cookie", cookieHeader);
 		return ResponseEntity.ok("User registered successfully");
 	}
 
@@ -52,11 +53,10 @@ public class AuthController {
 
 		User user = userService.authenticate(request.getEmail(), request.getPassword());
 		String token = jwtUtil.generateToken(user.getEmail());
-		Cookie cookie = new Cookie("JwtToken", token);
-		cookie.setHttpOnly(true);
-		cookie.setPath("/");
-		cookie.setMaxAge(24 * 60 * 60);
-		response.addCookie(cookie);
+		String cookieHeader = String.format("JwtToken=%s; Max-Age=%d; Path=/; Secure; HttpOnly; SameSite=None", token,
+				24 * 60 * 60);
+
+		response.addHeader("Set-Cookie", cookieHeader);
 		return ResponseEntity.ok("Login Successful");
 	}
 
