@@ -62,9 +62,10 @@ public class AuthController {
 
 	@PostMapping("/logout")
 	public ResponseEntity<?> logout(HttpServletResponse response) {
-		ResponseCookie cookie = ResponseCookie.from("token", "").httpOnly(true).secure(false).path("/").maxAge(0)
-				.build();
-		response.addHeader("Set-Cookie", cookie.toString());
+		String cookieHeader = String.format("JwtToken=; Max-Age=0; Path=/; Secure; HttpOnly; SameSite=None");
+
+		response.addHeader("Set-Cookie", cookieHeader);
+
 		return ResponseEntity.ok("Logged out successfully");
 	}
 }
