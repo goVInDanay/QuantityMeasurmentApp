@@ -2,6 +2,7 @@ package com.apps.quantitymeasurement.util;
 
 import java.io.IOException;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -19,6 +20,9 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
+	@Value("${FRONTEND_URL}")
+	private String frontendUrl;
+	
 	private final JwtUtil jwtUtil;
 	private final UserService userService;
 
@@ -44,6 +48,6 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 		jwtCookie.setMaxAge(24 * 60 * 60);
 
 		response.addCookie(jwtCookie);
-		response.sendRedirect("http://localhost:5500/dashboard.html");
+		response.sendRedirect(frontendUrl + "/dashboard");
 	}
 }
