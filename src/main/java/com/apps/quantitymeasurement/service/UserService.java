@@ -71,14 +71,18 @@ public class UserService {
 			return null;
 		}
 		Object principal = authentication.getPrincipal();
-		
+
 		if (principal instanceof OAuth2User oauthUser) {
 			String email = oauthUser.getAttribute("email");
 			return userRepository.findByEmail(email).orElse(null);
-		} else if (principal instanceof org.springframework.security.core.userdetails.User userDetails) {
+		}
+		if (principal instanceof org.springframework.security.core.userdetails.User userDetails) {
 			String email = userDetails.getUsername();
 			return userRepository.findByEmail(email).orElse(null);
 //			throw new IllegalStateException("U	nknown principal type: " + principal.getClass());
+		}
+		if (principal instanceof String email) {
+			return userRepository.findByEmail(email).orElse(null);
 		}
 		return null;
 	}

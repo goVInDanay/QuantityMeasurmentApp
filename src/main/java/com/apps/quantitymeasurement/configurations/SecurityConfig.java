@@ -40,7 +40,7 @@ public class SecurityConfig {
 					} else {
 						response.sendRedirect("/oauth2/authorization/google");
 					}
-				})).sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED));
+				})).sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 		return http.build();
 	}
 }
