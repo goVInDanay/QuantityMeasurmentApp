@@ -51,8 +51,10 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 			jwtCookie.setSecure(true);
 			jwtCookie.setPath("/");
 		}
+		String cookieHeader = String.format("JwtToken=%s; Max-Age=%d; Path=/; Secure; HttpOnly; SameSite=None", token,
+				24 * 60 * 60);
 
-		response.addCookie(jwtCookie);
+		response.addHeader("Set-Cookie", cookieHeader);
 		response.sendRedirect(frontendUrl + "/dashboard");
 	}
 }
