@@ -17,8 +17,11 @@ public class CorsConfig {
 		return new WebMvcConfigurer() {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
-				registry.addMapping("/api/**").allowedOrigins("http://localhost:3000")
-						.allowedMethods("GET", "POST", "PUT", "DELETE").allowCredentials(true);
+				registry.addMapping("/api/**")
+						.allowedOrigins("http://localhost:3000",
+								"https://quantity-measurement-app-fronte-git-84d496-govindanays-projects.vercel.app")
+						.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS").allowedHeaders("*")
+						.allowCredentials(true);
 			}
 		};
 	}
