@@ -5,6 +5,8 @@ import java.io.IOException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.web.DefaultRedirectStrategy;
+import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
@@ -39,16 +41,17 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 		UserDto userDto = UserDto.builder().email(email).name(oauthUser.getAttribute("name"))
 				.pictureUrl(oauthUser.getAttribute("picture")).build();
 		User user = userService.saveOrUpdate(userDto, "GOOGLE");
-
 		String token = jwtUtil.generateToken(email);
 		Cookie jwtCookie = new Cookie("JwtToken", token);
 		jwtCookie.setHttpOnly(true);
 		jwtCookie.setSecure(true);
 		jwtCookie.setPath("/");
 		jwtCookie.setMaxAge(24 * 60 * 60);
-		jwtCookie.setDomain("quantitymeasurmentapp-production.up.railway.app");
-		response.setHeader("Set-Cookie",
-				String.format("JwtToken=%s; Max-Age=%d; Path=/; HttpOnly; Secure; SameSite=None", token, 24 * 60 * 60));
+		if (!request.getServerName().equals("localhost")) {
+			jwtCookie.setSecure(true);
+			jwtCookie.setPath("/");
+		}
+
 		response.addCookie(jwtCookie);
 		response.sendRedirect(frontendUrl + "/dashboard");
 	}
