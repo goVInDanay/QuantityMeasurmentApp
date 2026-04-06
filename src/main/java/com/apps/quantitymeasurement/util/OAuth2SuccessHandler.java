@@ -22,7 +22,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
 	@Value("${FRONTEND_URL}")
 	private String frontendUrl;
-	
+
 	private final JwtUtil jwtUtil;
 	private final UserService userService;
 
@@ -43,10 +43,12 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 		String token = jwtUtil.generateToken(email);
 		Cookie jwtCookie = new Cookie("JwtToken", token);
 		jwtCookie.setHttpOnly(true);
-		jwtCookie.setSecure(false);
+		jwtCookie.setSecure(true);
 		jwtCookie.setPath("/");
 		jwtCookie.setMaxAge(24 * 60 * 60);
-
+		jwtCookie.setDomain("quantitymeasurmentapp-production.up.railway.app");
+		response.setHeader("Set-Cookie",
+				String.format("JwtToken=%s; Max-Age=%d; Path=/; HttpOnly; Secure; SameSite=None", token, 24 * 60 * 60));
 		response.addCookie(jwtCookie);
 		response.sendRedirect(frontendUrl + "/dashboard");
 	}
