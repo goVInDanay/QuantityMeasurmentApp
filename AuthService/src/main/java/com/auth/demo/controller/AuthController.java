@@ -10,7 +10,8 @@ import com.apps.quantitymeasurement.exception.DatabaseException;
 import com.auth.demo.entities.User;
 import com.auth.demo.models.LoginRequestDto;
 import com.auth.demo.models.RegisterRequestDto;
-import com.auth.demo.service.UserService;
+import com.auth.demo.repository.UserRepository;
+import com.auth.demo.service.AuthService;
 import com.auth.demo.util.JwtUtil;
 import com.auth.demo.util.PasswordValidator;
 
@@ -20,12 +21,15 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
-	private final JwtUtil jwtUtil;
-	private final UserService userService;
 
-	public AuthController(JwtUtil jwtUtil, UserService userService) {
+    private final UserRepository userRepository;
+	private final JwtUtil jwtUtil;
+	private final AuthService userService;
+
+	public AuthController(JwtUtil jwtUtil, AuthService userService, UserRepository userRepository) {
 		this.jwtUtil = jwtUtil;
 		this.userService = userService;
+		this.userRepository = userRepository;
 	}
 
 	@PostMapping("/register")
@@ -39,10 +43,11 @@ public class AuthController {
 		}
 		User user = userService.register(request);
 		String token = jwtUtil.generateToken(user.getEmail());
-		String cookieHeader = String.format("JwtToken=%s; Max-Age=%d; Path=/; Secure; HttpOnly; SameSite=None", token,
+		String cookieHeader = String.format("JwtToken=%s; Max-Age=%d; Path=/; HttpOnly; SameSite=None", token,
 				24 * 60 * 60);
 
 		response.addHeader("Set-Cookie", cookieHeader);
+		userService.syncUserToUserService(user);
 		return ResponseEntity.ok("User registered successfully");
 	}
 
@@ -51,7 +56,7 @@ public class AuthController {
 
 		User user = userService.authenticate(request.getEmail(), request.getPassword());
 		String token = jwtUtil.generateToken(user.getEmail());
-		String cookieHeader = String.format("JwtToken=%s; Max-Age=%d; Path=/; Secure; HttpOnly; SameSite=None", token,
+		String cookieHeader = String.format("JwtToken=%s; Max-Age=%d; Path=/; HttpOnly; SameSite=None", token,
 				24 * 60 * 60);
 
 		response.addHeader("Set-Cookie", cookieHeader);
@@ -60,7 +65,7 @@ public class AuthController {
 
 	@PostMapping("/logout")
 	public ResponseEntity<?> logout(HttpServletResponse response) {
-		String cookieHeader = String.format("JwtToken=; Max-Age=0; Path=/; Secure; HttpOnly; SameSite=None");
+		String cookieHeader = String.format("JwtToken=; Max-Age=0; Path=/; HttpOnly; SameSite=None");
 
 		response.addHeader("Set-Cookie", cookieHeader);
 

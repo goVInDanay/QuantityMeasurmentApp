@@ -2,10 +2,11 @@ package com.gateway.apigateway.filter;
 
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
-import org.springframework.core.Ordered;
 import org.springframework.http.HttpCookie;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.http.server.reactive.ServerHttpRequestDecorator;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -14,7 +15,7 @@ import com.gateway.apigateway.util.JwtUtil;
 import reactor.core.publisher.Mono;
 
 @Component
-public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
+public class JwtAuthenticationFilter implements GlobalFilter {
 
 	private final JwtUtil jwtUtil;
 
@@ -26,7 +27,8 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 	public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
 		String path = exchange.getRequest().getURI().getPath();
 		System.out.println("Gateway filter hit: " + path);
-		if (path.startsWith("/api/auth")) {
+
+		if (path.startsWith("/api/auth") || path.startsWith("/api/internal")) {
 			return chain.filter(exchange);
 		}
 
@@ -35,13 +37,19 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 			exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
 			return exchange.getResponse().setComplete();
 		}
-		String email = jwtUtil.getEmailFromToken(cookie.getValue());
-		ServerHttpRequest mutatedRequest = exchange.getRequest().mutate().header("X-User-Email", email).build();
-		return chain.filter(exchange.mutate().request(mutatedRequest).build());
-	}
 
-	@Override
-	public int getOrder() {
-		return -1;
+		String email = jwtUtil.getEmailFromToken(cookie.getValue());
+		System.out.println("JWT email: " + email);
+
+		ServerHttpRequest mutatedRequest = new ServerHttpRequestDecorator(exchange.getRequest()) {
+			@Override
+			public HttpHeaders getHeaders() {
+				HttpHeaders headers = new HttpHeaders();
+				headers.putAll(super.getHeaders());
+				headers.add("X-User-Email", email);
+				return headers;
+			}
+		};
+		return chain.filter(exchange.mutate().request(mutatedRequest).build());
 	}
 }

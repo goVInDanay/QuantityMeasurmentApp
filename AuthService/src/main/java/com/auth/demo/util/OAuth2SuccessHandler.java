@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import com.auth.demo.entities.User;
 import com.auth.demo.models.UserDto;
-import com.auth.demo.service.UserService;
+import com.auth.demo.service.AuthService;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -24,9 +24,9 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 	private String frontendUrl;
 
 	private final JwtUtil jwtUtil;
-	private final UserService userService;
+	private final AuthService userService;
 
-	public OAuth2SuccessHandler(JwtUtil jwtUtil, UserService userService) {
+	public OAuth2SuccessHandler(JwtUtil jwtUtil, AuthService userService) {
 		this.jwtUtil = jwtUtil;
 		this.userService = userService;
 	}
@@ -49,7 +49,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 			jwtCookie.setSecure(true);
 			jwtCookie.setPath("/");
 		}
-		String cookieHeader = String.format("JwtToken=%s; Max-Age=%d; Path=/; Secure; HttpOnly; SameSite=None", token,
+		String cookieHeader = String.format("JwtToken=%s; Max-Age=%d; Path=/; HttpOnly; SameSite=None", token,
 				24 * 60 * 60);
 
 		response.addHeader("Set-Cookie", cookieHeader);

@@ -4,6 +4,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import com.auth.demo.entities.User;
 import com.auth.demo.models.RegisterRequestDto;
@@ -13,13 +14,16 @@ import com.auth.demo.repository.UserRepository;
 import jakarta.transaction.Transactional;
 
 @Service
-public class UserService {
+public class AuthService {
 	private final UserRepository userRepository;
 	private final BCryptPasswordEncoder passwordEncoder;
+	private final RestTemplate restTemplate;
 
-	public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
+	public AuthService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder,
+			RestTemplate restTemplate) {
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
+		this.restTemplate = restTemplate;
 	}
 
 	public boolean existsByEmail(String email) {
@@ -61,7 +65,7 @@ public class UserService {
 		if (!passwordEncoder.matches(password, user.getPassword())) {
 			throw new IllegalArgumentException("Invalid credentials");
 		}
-
+		syncUserToUserService(user);
 		return user;
 	}
 
@@ -85,5 +89,15 @@ public class UserService {
 			return userRepository.findByEmail(email).orElse(null);
 		}
 		return null;
+	}
+
+	public void syncUserToUserService(User user) {
+		String url = "http://localhost:8082/api/internal/users";
+		UserDto dto = new UserDto(user.getEmail(), user.getName(), user.getPictureUrl());
+		try {
+			restTemplate.postForObject(url, dto, Void.class);
+		} catch (Exception e) {
+			System.out.println("User sync failed: " + e.getMessage());
+		}
 	}
 }
