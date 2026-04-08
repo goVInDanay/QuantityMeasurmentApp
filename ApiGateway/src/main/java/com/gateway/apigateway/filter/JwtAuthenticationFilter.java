@@ -37,9 +37,9 @@ public class JwtAuthenticationFilter implements GlobalFilter {
 			exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
 			return exchange.getResponse().setComplete();
 		}
-
+		System.out.println("Token " + cookie.getValue());
 		String email = jwtUtil.getEmailFromToken(cookie.getValue());
-		System.out.println("JWT email: " + email);
+		Long userId = jwtUtil.getUserIdFromToken(cookie.getValue());
 
 		ServerHttpRequest mutatedRequest = new ServerHttpRequestDecorator(exchange.getRequest()) {
 			@Override
@@ -47,6 +47,7 @@ public class JwtAuthenticationFilter implements GlobalFilter {
 				HttpHeaders headers = new HttpHeaders();
 				headers.putAll(super.getHeaders());
 				headers.add("X-User-Email", email);
+				headers.add("X-User-Id", String.valueOf(userId));
 				return headers;
 			}
 		};

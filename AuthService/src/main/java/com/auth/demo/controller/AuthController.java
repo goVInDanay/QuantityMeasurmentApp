@@ -22,7 +22,7 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private final UserRepository userRepository;
+	private final UserRepository userRepository;
 	private final JwtUtil jwtUtil;
 	private final AuthService userService;
 
@@ -42,7 +42,7 @@ public class AuthController {
 					"Password must contain uppercase, lowercase, number, special character and be at least 8 characters long");
 		}
 		User user = userService.register(request);
-		String token = jwtUtil.generateToken(user.getEmail());
+		String token = jwtUtil.generateToken(user.getEmail(), user.getId());
 		String cookieHeader = String.format("JwtToken=%s; Max-Age=%d; Path=/; HttpOnly; SameSite=None", token,
 				24 * 60 * 60);
 
@@ -55,7 +55,7 @@ public class AuthController {
 	public ResponseEntity<?> login(@RequestBody LoginRequestDto request, HttpServletResponse response) {
 
 		User user = userService.authenticate(request.getEmail(), request.getPassword());
-		String token = jwtUtil.generateToken(user.getEmail());
+		String token = jwtUtil.generateToken(user.getEmail(), user.getId());
 		String cookieHeader = String.format("JwtToken=%s; Max-Age=%d; Path=/; HttpOnly; SameSite=None", token,
 				24 * 60 * 60);
 
