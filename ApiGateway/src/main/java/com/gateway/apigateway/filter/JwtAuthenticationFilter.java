@@ -37,7 +37,7 @@ public class JwtAuthenticationFilter implements GlobalFilter {
 			exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
 			return exchange.getResponse().setComplete();
 		}
-		System.out.println("Token " + cookie.getValue());
+
 		String email = jwtUtil.getEmailFromToken(cookie.getValue());
 		Long userId = jwtUtil.getUserIdFromToken(cookie.getValue());
 
