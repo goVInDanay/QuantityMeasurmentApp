@@ -34,6 +34,7 @@ public class QuantityMeasurementEntity {
 	private String thisUnit;
 	private String thisMeasurementType;
 
+	@Column(nullable = true)
 	private Double thatValue;
 	private String thatUnit;
 	private String thatMeasurementType;
