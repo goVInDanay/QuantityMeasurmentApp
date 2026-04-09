@@ -3,6 +3,7 @@ package com.quantity.measurement.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,28 +23,35 @@ public class QuantityMeasurementController {
 	}
 
 	@PostMapping("/compare")
-	public ResponseEntity<Boolean> compare(@RequestBody CompareRequest request) {
-		return ResponseEntity.ok(service.compare(request.getThisQuantity(), request.getThatQuantity()));
+	public ResponseEntity<Boolean> compare(@RequestHeader("X-User-Id") String userId,
+			@RequestBody CompareRequest request) {
+		return ResponseEntity
+				.ok(service.compare(request.getThisQuantity(), request.getThatQuantity(), Long.parseLong(userId)));
 	}
 
 	@PostMapping("/convert")
-	public ResponseEntity<QuantityDTO> convert(@RequestBody QuantityDTO dto, @RequestParam String targetUnit) {
+	public ResponseEntity<QuantityDTO> convert(@RequestHeader("X-User-Id") String userId, @RequestBody QuantityDTO dto,
+			@RequestParam String targetUnit) {
 
-		return ResponseEntity.ok(service.convert(dto, targetUnit));
+		return ResponseEntity.ok(service.convert(dto, targetUnit, Long.parseLong(userId)));
 	}
 
 	@PostMapping("/add")
-	public ResponseEntity<QuantityDTO> add(@RequestBody CompareRequest request) {
-		return ResponseEntity.ok(service.add(request.getThisQuantity(), request.getThatQuantity()));
+	public ResponseEntity<QuantityDTO> add(@RequestHeader("X-User-Id") String userId,
+			@RequestBody CompareRequest request) {
+		return ResponseEntity.ok(service.add(request.getThisQuantity(), request.getThatQuantity(), Long.parseLong(userId)));
 	}
 
 	@PostMapping("/subtract")
-	public ResponseEntity<QuantityDTO> subtract(@RequestBody CompareRequest request) {
-		return ResponseEntity.ok(service.subtract(request.getThisQuantity(), request.getThatQuantity()));
+	public ResponseEntity<QuantityDTO> subtract(@RequestHeader("X-User-Id") String userId,
+			@RequestBody CompareRequest request) {
+		return ResponseEntity.ok(service.subtract(request.getThisQuantity(), request.getThatQuantity(), Long.parseLong(userId)));
 	}
 
 	@PostMapping("/divide")
-	public ResponseEntity<Double> divide(@RequestBody CompareRequest request) {
-		return ResponseEntity.ok(service.divide(request.getThisQuantity(), request.getThatQuantity()));
+	public ResponseEntity<Double> divide(@RequestHeader("X-User-Id") String userId,
+			@RequestBody CompareRequest request) {
+		return ResponseEntity
+				.ok(service.divide(request.getThisQuantity(), request.getThatQuantity(), Long.parseLong(userId)));
 	}
 }

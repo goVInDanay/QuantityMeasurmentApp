@@ -24,9 +24,11 @@ public class HistoryController {
 	private final HistoryService historyService;
 
 	@GetMapping
-	public ResponseEntity<List<QuantityHistoryDto>> getHistory(@RequestHeader("X-User-Id") Long userId,
+	public ResponseEntity<List<QuantityHistoryDto>> getHistory(
+			@RequestHeader(value = "X-User-Id") String userId,
 			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-		return ResponseEntity.ok(historyService.getHistory(userId, page, size));
+		System.out.println(userId);
+		return ResponseEntity.ok(historyService.getHistory(Long.parseLong(userId), page, size));
 	}
 
 	@PostMapping("/internal")

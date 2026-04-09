@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.apps.quantitymeasurement.exception.DatabaseException;
 import com.auth.demo.entities.User;
+import com.auth.demo.exceptions.DatabaseException;
 import com.auth.demo.models.LoginRequestDto;
 import com.auth.demo.models.RegisterRequestDto;
 import com.auth.demo.repository.UserRepository;

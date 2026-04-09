@@ -10,9 +10,9 @@ public class SecurityConfig {
 
 	@Bean
 	SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
-		return http.csrf(csrf -> csrf.disable())
-				.authorizeExchange(
-						exchange -> exchange.pathMatchers("/api/auth/**").permitAll().anyExchange().permitAll())
+		return http
+				.csrf(csrf -> csrf.disable()).authorizeExchange(exchange -> exchange
+						.pathMatchers("/api/auth/**", "api/history/internal").permitAll().anyExchange().permitAll())
 				.build();
 	}
 }
