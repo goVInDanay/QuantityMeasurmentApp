@@ -4,12 +4,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.user.userservice.dto.UserDto;
 import com.user.userservice.service.UserService;
+import com.user.userservice.utils.RequestUtils;
 
 @RestController
 @RequestMapping("/api")
@@ -21,8 +21,15 @@ public class UserController {
 	}
 
 	@GetMapping("/users/profile")
-	public ResponseEntity<?> getProfile(@RequestHeader(value = "X-User-Email", required = false) String email) {
+	public ResponseEntity<?> getProfile() {
+		String email = RequestUtils.getEmail();
+
+		if (email == null) {
+			return ResponseEntity.status(401).build();
+		}
+
 		System.out.println("Email received in UserService: " + email);
+
 		return ResponseEntity.ok("Hello " + email);
 	}
 

@@ -2,8 +2,9 @@ package com.gateway.apigateway.filter;
 
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpCookie;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpRequestDecorator;
 import org.springframework.stereotype.Component;
@@ -30,13 +31,13 @@ public class JwtAuthenticationFilter implements GlobalFilter {
 		String path = exchange.getRequest().getURI().getPath();
 		System.out.println("Gateway filter hit: " + path);
 
-		if (path.startsWith("/api/auth") || path.startsWith("/api/history/internal")) {
+		if (securityConfig.isPublicEndpoint(path)) {
 			return chain.filter(exchange);
 		}
 
 		HttpCookie cookie = exchange.getRequest().getCookies().getFirst("JwtToken");
 		if (cookie == null || !jwtUtil.validateToken(cookie.getValue())) {
-			exchange.getResponse().setStatusCode(org.springframework.http.HttpStatus.UNAUTHORIZED);
+			exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
 			return exchange.getResponse().setComplete();
 		}
 
@@ -46,26 +47,26 @@ public class JwtAuthenticationFilter implements GlobalFilter {
 
 			System.out.println("Extracted Email: " + email);
 			System.out.println("Extracted UserId: " + userId);
-
-			if (email != null && userId != null) {
-				ServerHttpRequest decoratedRequest = new ServerHttpRequestDecorator(exchange.getRequest()) {
-					@Override
-					public HttpHeaders getHeaders() {
-						HttpHeaders headers = new HttpHeaders();
-						headers.putAll(super.getHeaders());
-						headers.add("X-User-Id", String.valueOf(userId));
-						headers.add("X-User-Email", email);
-						return headers;
-					}
-				};
-
-				return chain.filter(exchange.mutate().request(decoratedRequest).build());
+			if (email == null || userId == null) {
+				exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+				return exchange.getResponse().setComplete();
 			}
+			ServerHttpRequest decoratedRequest = new ServerHttpRequestDecorator(exchange.getRequest()) {
+				@Override
+				public HttpHeaders getHeaders() {
+					HttpHeaders headers = new HttpHeaders();
+					headers.putAll(super.getHeaders());
+					headers.add("X-User-Id", String.valueOf(userId));
+					headers.add("X-User-Email", email);
+					return headers;
+				}
+			};
+
+			return chain.filter(exchange.mutate().request(decoratedRequest).build());
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+			return exchange.getResponse().setComplete();
 		}
-
-		return chain.filter(exchange);
 	}
 }

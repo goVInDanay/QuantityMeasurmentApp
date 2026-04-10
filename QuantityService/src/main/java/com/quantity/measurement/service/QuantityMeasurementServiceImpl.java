@@ -2,6 +2,7 @@ package com.quantity.measurement.service;
 
 import org.springframework.stereotype.Service;
 
+import com.quantity.measurement.client.HistoryClient;
 import com.quantity.measurement.exception.QuantityMeasurementException;
 import com.quantity.measurement.model.OperationType;
 import com.quantity.measurement.model.QuantityDTO;
@@ -37,9 +38,9 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
 			QuantityHistoryDto history = QuantityHistoryDto.builder().thisValue(thisDTO.getValue())
 					.thisUnit(thisDTO.getUnit()).thisMeasurementType(thisDTO.getMeasurementType())
 					.thatValue(thatDTO.getValue()).thatUnit(thatDTO.getUnit())
-					.thatMeasurementType(thatDTO.getMeasurementType()).operation("COMPARE")
+					.thatMeasurementType(thatDTO.getMeasurementType()).operation(OperationType.COMPARE.name())
 					.resultString(String.valueOf(result)).userId(userId).build();
-			historyClient.saveHistory(history);
+			saveSuccessHistory(history);
 			return result;
 
 		} catch (Exception e) {
@@ -63,11 +64,11 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
 			QuantityDTO response = new QuantityDTO(result, target.getUnitName(), target.getMeasurementType());
 
 			QuantityHistoryDto history = QuantityHistoryDto.builder().thisValue(dto.getValue()).thisUnit(dto.getUnit())
-					.thisMeasurementType(dto.getMeasurementType()).operation("CONVERT").resultValue(response.getValue())
+					.thisMeasurementType(dto.getMeasurementType()).operation(OperationType.CONVERT.name()).resultValue(response.getValue())
 					.resultUnit(response.getUnit()).resultMeasurementType(response.getMeasurementType())
 					.resultString(response.getValue() + " " + response.getUnit()).userId(userId).build();
 
-			historyClient.saveHistory(history);
+			saveSuccessHistory(history);
 
 			return response;
 
@@ -109,7 +110,7 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
 					.thatMeasurementType(d2.getMeasurementType()).operation("DIVIDE")
 					.resultString(String.valueOf(result)).userId(userId).build();
 
-			historyClient.saveHistory(history);
+			saveSuccessHistory(history);
 
 			return result;
 
@@ -142,7 +143,7 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
 					.resultUnit(response.getUnit()).resultMeasurementType(response.getMeasurementType())
 					.resultString(response.getValue() + " " + response.getUnit()).userId(userId).build();
 
-			historyClient.saveHistory(history);
+			saveSuccessHistory(history);
 
 			return response;
 
@@ -153,15 +154,26 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
 	}
 
 	private void saveError(QuantityDTO d1, QuantityDTO d2, String operation, Exception e, Long userId) {
-		System.out.println(e.getMessage().length());
-		QuantityHistoryDto history = QuantityHistoryDto.builder().thisValue(d1 != null ? d1.getValue() : 0)
-				.thisUnit(d1 != null ? d1.getUnit() : null)
-				.thisMeasurementType(d1 != null ? d1.getMeasurementType() : null)
-				.thatValue(d2 != null ? d2.getValue() : null).thatUnit(d2 != null ? d2.getUnit() : null)
-				.thatMeasurementType(d2 != null ? d2.getMeasurementType() : null).operation(operation).isError(true)
-				.errorMessage(e.getMessage()).userId(userId).build();
+		try {
+			QuantityHistoryDto history = QuantityHistoryDto.builder().thisValue(d1 != null ? d1.getValue() : 0)
+					.thisUnit(d1 != null ? d1.getUnit() : null)
+					.thisMeasurementType(d1 != null ? d1.getMeasurementType() : null)
+					.thatValue(d2 != null ? d2.getValue() : null).thatUnit(d2 != null ? d2.getUnit() : null)
+					.thatMeasurementType(d2 != null ? d2.getMeasurementType() : null).operation(operation).isError(true)
+					.errorMessage(e.getMessage()).userId(userId).build();
 
-		historyClient.saveHistory(history);
+			saveSuccessHistory(history);
+		} catch (Exception ex) {
+			System.out.println("History service down: " + ex.getMessage());
+		}
+	}
+
+	private void saveSuccessHistory(QuantityHistoryDto history) {
+		try {
+			historyClient.saveHistory(history);
+		} catch (Exception ex) {
+			System.out.println("History service down: " + ex.getMessage());
+		}
 	}
 
 	private void validateArithmetic(QuantityModel<IMeasurable> q1, QuantityModel<IMeasurable> q2) {

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.history.historyservice.model.QuantityHistoryDto;
 import com.history.historyservice.service.HistoryService;
+import com.history.historyservice.util.RequestUtils;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,11 +25,11 @@ public class HistoryController {
 	private final HistoryService historyService;
 
 	@GetMapping
-	public ResponseEntity<List<QuantityHistoryDto>> getHistory(
-			@RequestHeader(value = "X-User-Id") String userId,
-			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+	public ResponseEntity<List<QuantityHistoryDto>> getHistory(@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size) {
+		Long userId = RequestUtils.getUserId();
 		System.out.println(userId);
-		return ResponseEntity.ok(historyService.getHistory(Long.parseLong(userId), page, size));
+		return ResponseEntity.ok(historyService.getHistory(userId, page, size));
 	}
 
 	@PostMapping("/internal")

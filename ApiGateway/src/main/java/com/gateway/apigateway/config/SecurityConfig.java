@@ -15,4 +15,8 @@ public class SecurityConfig {
 						.pathMatchers("/api/auth/**", "api/history/internal").permitAll().anyExchange().permitAll())
 				.build();
 	}
+
+	public boolean isPublicEndpoint(String path) {
+		return path.startsWith("/api/auth") || path.startsWith("/api/history/internal");
+	}
 }
