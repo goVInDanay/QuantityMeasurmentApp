@@ -2,7 +2,7 @@ package com.quantity.measurement.service;
 
 import org.springframework.stereotype.Service;
 
-import com.quantity.measurement.client.HistoryClient;
+import com.quantity.measurement.eventpublisher.KafkaProducerService;
 import com.quantity.measurement.exception.QuantityMeasurementException;
 import com.quantity.measurement.model.OperationType;
 import com.quantity.measurement.model.QuantityDTO;
@@ -18,10 +18,10 @@ import com.quantity.measurement.unit.WeightUnit;
 public class QuantityMeasurementServiceImpl implements IQuantityMeasurementService {
 
 	private static final double EPSILON = 0.00001;
-	private final HistoryClient historyClient;
+	private final KafkaProducerService kafkaProducerService;
 
-	public QuantityMeasurementServiceImpl(HistoryClient historyClient) {
-		this.historyClient = historyClient;
+	public QuantityMeasurementServiceImpl(KafkaProducerService kafkaProducerService) {
+		this.kafkaProducerService = kafkaProducerService;
 	}
 
 	@Override
@@ -64,8 +64,9 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
 			QuantityDTO response = new QuantityDTO(result, target.getUnitName(), target.getMeasurementType());
 
 			QuantityHistoryDto history = QuantityHistoryDto.builder().thisValue(dto.getValue()).thisUnit(dto.getUnit())
-					.thisMeasurementType(dto.getMeasurementType()).operation(OperationType.CONVERT.name()).resultValue(response.getValue())
-					.resultUnit(response.getUnit()).resultMeasurementType(response.getMeasurementType())
+					.thisMeasurementType(dto.getMeasurementType()).operation(OperationType.CONVERT.name())
+					.resultValue(response.getValue()).resultUnit(response.getUnit())
+					.resultMeasurementType(response.getMeasurementType())
 					.resultString(response.getValue() + " " + response.getUnit()).userId(userId).build();
 
 			saveSuccessHistory(history);
@@ -163,16 +164,19 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
 					.errorMessage(e.getMessage()).userId(userId).build();
 
 			saveSuccessHistory(history);
+
 		} catch (Exception ex) {
-			System.out.println("History service down: " + ex.getMessage());
+			System.out.println("Kafka publish failed: " + ex.getMessage());
 		}
 	}
 
 	private void saveSuccessHistory(QuantityHistoryDto history) {
 		try {
-			historyClient.saveHistory(history);
+
+			kafkaProducerService.sendHistoryEvent("history-topic", history);
+
 		} catch (Exception ex) {
-			System.out.println("History service down: " + ex.getMessage());
+			System.out.println("Kafka publish failed: " + ex.getMessage());
 		}
 	}
 

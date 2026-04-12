@@ -1,4 +1,4 @@
-package com.quantity.measurement.model;
+package com.common.events;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,10 +6,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class QuantityHistoryDto {
+@Builder
+public class HistoryEvent {
+
+	private Long userId;
+	private String operation;
 
 	private Double thisValue;
 	private String thisUnit;
@@ -19,8 +22,6 @@ public class QuantityHistoryDto {
 	private String thatUnit;
 	private String thatMeasurementType;
 
-	private String operation;
-
 	private Double resultValue;
 	private String resultUnit;
 	private String resultMeasurementType;
@@ -29,6 +30,4 @@ public class QuantityHistoryDto {
 
 	private Boolean isError;
 	private String errorMessage;
-
-	private Long userId;
 }

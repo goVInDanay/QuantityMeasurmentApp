@@ -131,6 +131,7 @@
 
 	<!-- Build Plugins -->
 	<build>
+		<finalName>auth-service</finalName>
 		<plugins>
 
 			<!-- Spring Boot Maven Plugin -->
@@ -147,16 +148,6 @@
 				<configuration>
 					<source>17</source>
 					<target>17</target>
-					<annotationProcessorPaths>
-						<path>
-							<groupId>org.projectlombok</groupId>
-							<artifactId>lombok</artifactId>
-						</path>
-						<path>
-							<groupId>org.springframework.boot</groupId>
-							<artifactId>spring-boot-configuration-processor</artifactId>
-						</path>
-					</annotationProcessorPaths>
 				</configuration>
 			</plugin>
 

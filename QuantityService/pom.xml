@@ -82,10 +82,17 @@
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
 		</dependency>
 
+		<!-- 🔁 Kafka -->
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<!-- Build Plugins -->
 	<build>
+		<finalName>quantity-service</finalName>
 		<plugins>
 
 			<!-- Spring Boot Maven Plugin -->
@@ -102,16 +109,6 @@
 				<configuration>
 					<source>17</source>
 					<target>17</target>
-					<annotationProcessorPaths>
-						<path>
-							<groupId>org.projectlombok</groupId>
-							<artifactId>lombok</artifactId>
-						</path>
-						<path>
-							<groupId>org.springframework.boot</groupId>
-							<artifactId>spring-boot-configuration-processor</artifactId>
-						</path>
-					</annotationProcessorPaths>
 				</configuration>
 			</plugin>
 
