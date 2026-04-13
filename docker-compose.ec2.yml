@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+    # ===================== EUREKA =====================
+    eureka-server:
+        build: ./EurekaServer
+        container_name: eureka-server
+        ports:
+            - "8761:8761"
+        networks:
+            - app-network
+
+    # ===================== API GATEWAY =====================
+    api-gateway:
+        build: ./ApiGateway
+        container_name: api-gateway
+        depends_on:
+            - eureka-server
+        environment:
+            - EUREKA_URL=http://eureka-server:8761/eureka
+            - JWT_SECRET=${JWT_SECRET}
+            - JWT_EXPIRATION=${JWT_EXPIRATION}
+        ports:
+            - "8080:8080"
+        networks:
+            - app-network
+
+networks:
+    app-network:
+        driver: bridge
