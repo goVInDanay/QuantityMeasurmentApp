@@ -28,7 +28,6 @@ public class HistoryController {
 	public ResponseEntity<List<QuantityHistoryDto>> getHistory(@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "10") int size) {
 		Long userId = RequestUtils.getUserId();
-		System.out.println(userId);
 		return ResponseEntity.ok(historyService.getHistory(userId, page, size));
 	}
 

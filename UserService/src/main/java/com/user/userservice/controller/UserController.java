@@ -28,8 +28,6 @@ public class UserController {
 			return ResponseEntity.status(401).build();
 		}
 
-		System.out.println("Email received in UserService: " + email);
-
 		return ResponseEntity.ok("Hello " + email);
 	}
 

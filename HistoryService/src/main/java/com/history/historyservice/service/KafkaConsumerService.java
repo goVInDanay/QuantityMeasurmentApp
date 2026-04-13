@@ -18,7 +18,6 @@ public class KafkaConsumerService {
 
 	@KafkaListener(topics = "history-topic", groupId = "history-group-2")
 	public void consume(HistoryEvent event) {
-		System.out.println("Kafka Event: " + event);
 
 		QuantityMeasurementEntity entity = QuantityMeasurementEntity.builder().userId(event.getUserId())
 				.operation(event.getOperation()).thisValue(event.getThisValue()).thisUnit(event.getThisUnit())

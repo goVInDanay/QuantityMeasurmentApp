@@ -59,7 +59,6 @@ public class AuthService {
 	}
 
 	public User authenticate(String email, String password) {
-		System.out.println(email + " " + password);
 		User user = userRepository.findByEmail(email)
 				.orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
 		if (!passwordEncoder.matches(password, user.getPassword())) {
