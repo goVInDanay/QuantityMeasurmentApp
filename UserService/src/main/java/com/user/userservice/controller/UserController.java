@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.user.userservice.dto.UserDto;
+import com.user.userservice.entities.User;
 import com.user.userservice.service.UserService;
 import com.user.userservice.utils.RequestUtils;
 
@@ -27,8 +28,10 @@ public class UserController {
 		if (email == null) {
 			return ResponseEntity.status(401).build();
 		}
+		User user = userService.findByEmail(email);
+		UserDto dto = UserDto.builder().email(user.getEmail()).name(user.getName()).pictureUrl(user.getPictureUrl()).build();
 
-		return ResponseEntity.ok("Hello " + email);
+		return ResponseEntity.ok(dto);
 	}
 
 	@PostMapping("/internal/users")
