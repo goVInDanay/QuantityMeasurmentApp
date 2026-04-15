@@ -13,7 +13,7 @@ public class CorsConfig {
 	CorsWebFilter corsWebFilter() {
 		CorsConfiguration config = new CorsConfiguration();
 		config.addAllowedOrigin("http://localhost:3000");
-		config.addAllowedOrigin("https://quantity-measurement-app-frontend-hf6l-fpp2d9g7o.vercel.app");
+	    config.addAllowedOriginPattern("https://*.vercel.app");
 		config.addAllowedMethod("*");
 		config.addAllowedHeader("*");
 		config.setAllowCredentials(true);
