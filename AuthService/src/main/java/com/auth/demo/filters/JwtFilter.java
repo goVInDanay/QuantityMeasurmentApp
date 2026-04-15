@@ -28,11 +28,13 @@ public class JwtFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
+
 		String token = null;
 		String authHeader = request.getHeader("Authorization");
 		String path = request.getRequestURI();
 
-		if (path.contains("/auth/login") || path.contains("/auth/signup")) {
+		// ✅ Skip auth endpoints
+		if (path.contains("/api/auth/login") || path.contains("/api/auth/register")) {
 			filterChain.doFilter(request, response);
 			return;
 		}
@@ -50,13 +52,21 @@ public class JwtFilter extends OncePerRequestFilter {
 		}
 
 		if (token != null) {
-			String email = jwtUtil.extractEmail(token);
-			if (email != null && jwtUtil.isTokenValid(token, email)) {
-				UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(email, null,
-						List.of());
-				SecurityContextHolder.getContext().setAuthentication(auth);
+			try {
+				String email = jwtUtil.extractEmail(token);
+
+				if (email != null && jwtUtil.isTokenValid(token, email)) {
+					UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(email, null,
+							List.of());
+
+					SecurityContextHolder.getContext().setAuthentication(auth);
+				}
+
+			} catch (Exception e) {
+				System.out.println("JWT Error: " + e.getMessage());
 			}
 		}
+
 		filterChain.doFilter(request, response);
 	}
 }
