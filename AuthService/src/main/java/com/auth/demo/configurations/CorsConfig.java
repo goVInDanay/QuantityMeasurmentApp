@@ -19,7 +19,7 @@ public class CorsConfig {
 			public void addCorsMappings(CorsRegistry registry) {
 				registry.addMapping("/api/**")
 						.allowedOrigins("http://localhost:3000",
-								"https://quantity-measurement-app-fronte-git-84d496-govindanays-projects.vercel.app")
+								"https://quantity-measurement-app-fronte-git-84d496-govindanays-projects.vercel.app", "https://quantity-measurement-app-frontend-h.vercel.app/")
 						.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS").allowedHeaders("*")
 						.allowCredentials(true);
 			}
