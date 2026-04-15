@@ -38,9 +38,9 @@ public class SecurityConfig {
 						response.setContentType("application/json");
 						response.getWriter().write("{\"error\":\"Unauthorized\"}");
 					} else {
-						response.sendRedirect("/oauth2/authorization/google");
+						response.sendError(401, "Unauthorized");
 					}
-				})).sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+				})).sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED));
 		return http.build();
 	}
 }
