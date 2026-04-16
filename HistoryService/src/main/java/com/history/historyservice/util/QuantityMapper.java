@@ -10,7 +10,7 @@ public class QuantityMapper {
 				.thatUnit(entity.getThatUnit()).thatMeasurementType(entity.getThatMeasurementType())
 				.operation(entity.getOperation()).resultValue(entity.getResultValue())
 				.resultUnit(entity.getResultUnit()).resultMeasurementType(entity.getResultMeasurementType())
-				.resultString(entity.getResultString()).isError(entity.isError()).errorMessage(entity.getErrorMessage())
+				.resultString(entity.getResultString()).error(entity.isError()).errorMessage(entity.getErrorMessage())
 				.userId(entity.getUserId()).build();
 	}
 }

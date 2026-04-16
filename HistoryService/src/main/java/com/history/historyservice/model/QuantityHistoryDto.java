@@ -26,7 +26,7 @@ public class QuantityHistoryDto {
 
 	private String resultString;
 
-	private boolean isError;
+	private boolean error;
 	private String errorMessage;
 
 	private Long userId;

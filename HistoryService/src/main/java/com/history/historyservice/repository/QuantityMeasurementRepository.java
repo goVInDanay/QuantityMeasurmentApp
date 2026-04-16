@@ -8,4 +8,6 @@ import com.history.historyservice.entity.QuantityMeasurementEntity;
 
 public interface QuantityMeasurementRepository extends JpaRepository<QuantityMeasurementEntity, Long> {
 	Page<QuantityMeasurementEntity> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
+
+	Page<QuantityMeasurementEntity> findByUserId(Long userId, Pageable pageable);
 }

@@ -2,10 +2,14 @@ package com.history.historyservice.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.history.historyservice.entity.QuantityMeasurementEntity;
+import com.history.historyservice.model.HistoryResponseDto;
 import com.history.historyservice.model.QuantityHistoryDto;
 import com.history.historyservice.repository.QuantityMeasurementRepository;
 import com.history.historyservice.util.QuantityMapper;
@@ -18,9 +22,15 @@ public class HistoryService {
 
 	private final QuantityMeasurementRepository repository;
 
-	public List<QuantityHistoryDto> getHistory(Long userId, int page, int size) {
-		return repository.findByUserIdOrderByCreatedAtDesc(userId, PageRequest.of(page, size)).stream()
-				.map(QuantityMapper::toDTO).toList();
+	public HistoryResponseDto getHistory(Long userId, int page, int size) {
+		Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+
+		Page<QuantityMeasurementEntity> historyPage = repository.findByUserId(userId, pageable);
+
+		List<QuantityHistoryDto> items = historyPage.getContent().stream().map(QuantityMapper::toDTO).toList();
+
+		return new HistoryResponseDto(items, historyPage.getNumber(), historyPage.getSize(),
+				historyPage.getTotalElements(), historyPage.isLast());
 	}
 
 	public void saveHistory(QuantityHistoryDto dto) {
