@@ -44,9 +44,6 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 				24 * 60 * 60);
 
 		response.addHeader("Set-Cookie", cookieHeader);
-		response.setStatus(HttpServletResponse.SC_FOUND);
-		response.setHeader("Location", frontendUrl + "/dashboard");
-		response.flushBuffer();
 		response.sendRedirect(frontendUrl + "/dashboard");
 	}
 }
