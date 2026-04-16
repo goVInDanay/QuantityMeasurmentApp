@@ -40,19 +40,13 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 				.pictureUrl(oauthUser.getAttribute("picture")).build();
 		User user = userService.saveOrUpdate(userDto, "GOOGLE");
 		String token = jwtUtil.generateToken(email, user.getId());
-		Cookie jwtCookie = new Cookie("JwtToken", token);
-		jwtCookie.setHttpOnly(true);
-		jwtCookie.setSecure(true);
-		jwtCookie.setPath("/");
-		jwtCookie.setMaxAge(24 * 60 * 60);
-		if (!request.getServerName().equals("localhost")) {
-			jwtCookie.setSecure(true);
-			jwtCookie.setPath("/");
-		}
 		String cookieHeader = String.format("JwtToken=%s; Max-Age=%d; Path=/; HttpOnly; Secure; SameSite=None", token,
 				24 * 60 * 60);
 
 		response.addHeader("Set-Cookie", cookieHeader);
+		response.setStatus(HttpServletResponse.SC_FOUND);
+		response.setHeader("Location", frontendUrl + "/dashboard");
+		response.flushBuffer();
 		response.sendRedirect(frontendUrl + "/dashboard");
 	}
 }
