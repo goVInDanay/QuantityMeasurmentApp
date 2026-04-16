@@ -17,6 +17,6 @@ public class SecurityConfig {
 	}
 
 	public boolean isPublicEndpoint(String path) {
-		return path.startsWith("/api/auth") || path.startsWith("/api/history/internal");
+		return path.startsWith("/api/auth") || path.startsWith("/api/history/internal") || path.contains("/oauth2/");
 	}
 }
