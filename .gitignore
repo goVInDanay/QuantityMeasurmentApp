@@ -5,7 +5,6 @@
 *.log
 *.ctxt
 .mtj.tmp/
-# Package Files #
 
 *.jar
 *.war
@@ -19,27 +18,40 @@
 hs_err_pid*
 replay_pid*
 
-# -------------------------
-# Maven / Eclipse
-# -------------------------
 /target/                 # Maven build output
 .classpath
 .project
 .settings/
 .properties
+=======
+/target/
+.classpath
+.project
+.settings/
+>>>>>>> feature/UC21-Microservices
 /*.launch
 
-# -------------------------
-# IDE / editor files
-# -------------------------
+
 *.iml                   # IntelliJ IDEA
 /.idea/                 # IntelliJ IDEA folder
+=======
+*.iml
+/.idea/
+>>>>>>> feature/UC21-Microservices
 
-# -------------------------
-# OS files
-# -------------------------
 .DS_Store               # macOS
 Thumbs.db               # Windows
+=======
+.DS_Store
+Thumbs.db
+
+# -------------------------
+# Environment / Secrets
+# -------------------------
+.env
+**/*.env
+application-secret.properties
+**/application-secret.properties
 
 # -------------------------
 # Optional: temporary files
@@ -48,3 +60,4 @@ Thumbs.db               # Windows
 *.swp
 /target/
 src/main/resources/application-secret.properties
+*.swp
