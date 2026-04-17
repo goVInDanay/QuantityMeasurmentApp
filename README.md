@@ -63,3 +63,9 @@
 ## Day 11
 		- Added UC-18 in feature/UC18-Google-Authentication-and-User-Management-for-Quantity-Measurement
 		- Added OAuth-2 and Jwt with Spring Security
+
+## Day 12 
+		- Added UC-21 in feature/UC21-Microservices
+		- Added Microservice Architecture
+Project Link
+https://apigateway-mxaf.onrender.com
